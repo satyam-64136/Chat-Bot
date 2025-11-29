@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Accessible AI Chatbot</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+    }
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    h2 {
+        text-align: center;
+        font-size: 28px;
+    }
+    #chat {
+        height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 15px;
+        font-size: 20px;
+    }
+    #userInput {
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        margin-top: 10px;
+    }
+    button {
+        width: 100%;
+        padding: 15px;
+        margin-top: 10px;
+        font-size: 20px;
+        background: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #0056b3;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Voice Chatbot (Accessible)</h2>
+
+    <div id="chat"></div>
+
+    <input type="text" id="userInput" placeholder="Type your message...">
+
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+function speak(text) {
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.pitch = 1;
+    speech.rate = 1;
+    window.speechSynthesis.speak(speech);
+}
+
+function botReply(msg) {
+    // VERY SIMPLE LOGIC (You can add more rules if needed)
+    msg = msg.toLowerCase();
+
+    if (msg.includes("hello") || msg.includes("hi")) return "Hello! How can I help you?";
+    if (msg.includes("name")) return "I am your accessible AI chatbot!";
+    if (msg.includes("help")) return "Sure! Tell me what you need help with.";
+    if (msg.includes("time"))
+        return "The current time is: " + new Date().toLocaleTimeString();
+
+    return "I don't fully understand, but I'm here to help!";
+}
+
+function sendMessage() {
+    let input = document.getElementById("userInput");
+    let userText = input.value.trim();
+    if (userText === "") return;
+
+    let chatBox = document.getElementById("chat");
+
+    // Show user message
+    chatBox.innerHTML += "<p><b>You:</b> " + userText + "</p>";
+
+    // Generate bot response
+    let response = botReply(userText);
+
+    chatBox.innerHTML += "<p><b>Bot:</b> " + response + "</p>";
+
+    // Speak it
+    speak(response);
+
+    // Auto scroll
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Clear input
+    input.value = "";
+}
+</script>
+
+</body>
+</html>
