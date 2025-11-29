@@ -1,114 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Accessible AI Chatbot</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
-        padding: 20px;
-    }
-    .container {
-        max-width: 600px;
-        margin: auto;
-        background: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    }
-    h2 {
-        text-align: center;
-        font-size: 28px;
-    }
-    #chat {
-        height: 300px;
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        padding: 15px;
-        font-size: 20px;
-    }
-    #userInput {
-        width: 100%;
-        padding: 15px;
-        font-size: 18px;
-        margin-top: 10px;
-    }
-    button {
-        width: 100%;
-        padding: 15px;
-        margin-top: 10px;
-        font-size: 20px;
-        background: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-    button:hover {
-        background: #0056b3;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible AI Chatbot</title>
+    <style>
+        :root {
+            --bg-color: #000;
+            --text-color: #fff;
+            --user-bg: #0066cc;
+            --bot-bg: #333;
+            --button-bg: #009933;
+            --button-hover: #00cc44;
+            --font-size: 22px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            font-size: var(--font-size);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chat-window {
+            height: 500px;
+            overflow-y: auto;
+            border: 2px solid var(--text-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: var(--bot-bg);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: var(--user-bg);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot-message {
+            background-color: var(--bot-bg);
+            margin-right: auto;
+            text-align: left;
+            border: 1px solid var(--text-color);
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 15px;
+            font-size: var(--font-size);
+            border: 2px solid var(--text-color);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: var(--font-size);
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        #microphone-btn {
+            background-color: #cc0000;
+        }
+
+        #microphone-btn:hover {
+            background-color: #ff3333;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            font-size: calc(var(--font-size) - 2px);
+            color: #aaa;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Accessible AI Chatbot</h1>
+        <div class="chat-window" id="chat-window">
+            <div class="message bot-message" id="welcome-message">
+                Hello! I'm your accessible AI assistant. How can I help you today?
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type your message here..." aria-label="Type your message here">
+            <button id="send-btn">Send</button>
+            <button id="microphone-btn">🎤</button>
+        </div>
+        <div class="instructions">
+            <p>Press ENTER to send. Click the microphone to speak.</p>
+        </div>
+    </div>
 
-<div class="container">
-    <h2>Voice Chatbot (Accessible)</h2>
+    <script>
+        // DOM Elements
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const microphoneBtn = document.getElementById('microphone-btn');
 
-    <div id="chat"></div>
+        // Speech Synthesis
+        const synth = window.speechSynthesis;
+        let utterance = null;
 
-    <input type="text" id="userInput" placeholder="Type your message...">
+        // Speech Recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
 
-    <button onclick="sendMessage()">Send</button>
-</div>
+        // Conversation context
+        let context = {
+            lastTopic: null,
+            userName: null,
+            isHealthTopic: false,
+            isEmotionalTopic: false,
+        };
 
-<script>
-function speak(text) {
-    let speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US";
-    speech.pitch = 1;
-    speech.rate = 1;
-    window.speechSynthesis.speak(speech);
-}
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            speak("Hello! I'm your accessible AI assistant. How can I help you today?");
 
-function botReply(msg) {
-    // VERY SIMPLE LOGIC (You can add more rules if needed)
-    msg = msg.toLowerCase();
+            // Send message on ENTER
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && userInput.value.trim()) {
+                    sendMessage();
+                }
+            });
 
-    if (msg.includes("hello") || msg.includes("hi")) return "Hello! How can I help you?";
-    if (msg.includes("name")) return "I am your accessible AI chatbot!";
-    if (msg.includes("help")) return "Sure! Tell me what you need help with.";
-    if (msg.includes("time"))
-        return "The current time is: " + new Date().toLocaleTimeString();
+            // Send button
+            sendBtn.addEventListener('click', sendMessage);
 
-    return "I don't fully understand, but I'm here to help!";
-}
+            // Microphone button
+            microphoneBtn.addEventListener('click', startVoiceInput);
+        });
 
-function sendMessage() {
-    let input = document.getElementById("userInput");
-    let userText = input.value.trim();
-    if (userText === "") return;
+        // Send message
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
 
-    let chatBox = document.getElementById("chat");
+            addMessage(message, 'user-message');
+            userInput.value = '';
 
-    // Show user message
-    chatBox.innerHTML += "<p><b>You:</b> " + userText + "</p>";
+            // Bot response
+            setTimeout(() => {
+                const botResponse = generateResponse(message);
+                addMessage(botResponse, 'bot-message');
+                speak(botResponse);
+            }, 500);
+        }
 
-    // Generate bot response
-    let response = botReply(userText);
+        // Add message to chat window
+        function addMessage(message, className) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
 
-    chatBox.innerHTML += "<p><b>Bot:</b> " + response + "</p>";
+        // Speak text
+        function speak(text) {
+            if (synth.speaking) {
+                synth.cancel();
+            }
+            utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            synth.speak(utterance);
+        }
 
-    // Speak it
-    speak(response);
+        // Start voice input
+        function startVoiceInput() {
+            if (!SpeechRecognition) {
+                alert("Your browser doesn't support speech recognition. Try Chrome or Edge.");
+                return;
+            }
 
-    // Auto scroll
-    chatBox.scrollTop = chatBox.scrollHeight;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
 
-    // Clear input
-    input.value = "";
-}
-</script>
+            recognition.start();
+            microphoneBtn.textContent = "Listening...";
 
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript;
+                userInput.value = speechResult;
+                microphoneBtn.textContent = "🎤";
+                sendMessage();
+            };
+
+            recognition.onerror = (event) => {
+                microphoneBtn.textContent = "🎤";
+                console.error("Speech recognition error", event.error);
+            };
+
+            recognition.onend = () => {
+                microphoneBtn.textContent = "🎤";
+            };
+        }
+
+        // Generate bot response
+        function generateResponse(userMessage) {
+            const lowerCaseMessage = userMessage.toLowerCase();
+
+            // Greeting
+            if (lowerCaseMessage.includes("hello") ||
+                lowerCaseMessage.includes("hi") ||
+                lowerCaseMessage.includes("hey")) {
+                context.lastTopic = "greeting";
+                return "Hello! How are you doing today?";
+            }
+
+            // How are you?
+            if (lowerCaseMessage.includes("how are you")) {
+                context.lastTopic = "how_are_you";
+                return "I'm just a program, but I'm here and ready to help you! How about you?";
+            }
+
+            // Name
+            if (lowerCaseMessage.includes("your name") ||
+                lowerCaseMessage.includes("who are you")) {
+                context.lastTopic = "name";
+                return "I'm your accessible AI assistant. You can call me Friend. What's your name?";
+            }
+
+            // User shares their name
+            if (context.lastTopic === "name" && !context.userName) {
+                context.userName = userMessage;
+                return `Nice to meet you, ${context.userName}! What would you like to talk about?`;
+            }
+
+            // Health-related questions
+            if (lowerCaseMessage.includes("cancer") ||
+                lowerCaseMessage.includes("sick") ||
+                lowerCaseMessage.includes("pain") ||
+                lowerCaseMessage.includes("diagnosis")) {
+                context.isHealthTopic = true;
+                return "I'm really sorry to hear you're concerned about your health. I can't diagnose or provide medical advice, but I can suggest you speak to a healthcare professional. Would you like help finding resources?";
+            }
+
+            // Emotional support
+            if (lowerCaseMessage.includes("sad") ||
+                lowerCaseMessage.includes("depressed") ||
+                lowerCaseMessage.includes("anxious") ||
+                lowerCaseMessage.includes("stressed") ||
+                lowerCaseMessage.includes("lonely")) {
+                context.isEmotionalTopic = true;
+                return "I'm here for you. It's okay to feel this way. Would you like to talk about it, or can I help you find someone to reach out to?";
+            }
+
+            // Follow-up for emotional support
+            if (context.isEmotionalTopic) {
+                return "You're not alone. If you'd like, I can suggest some coping strategies or help you find a helpline. What feels right for you?";
+            }
+
+            // Follow-up for health
+            if (context.isHealthTopic) {
+                return "Please consult a doctor for any health concerns. If you'd like, I can help you draft a list of symptoms or questions to ask your healthcare provider.";
+            }
+
+            // General questions
+            if (lowerCaseMessage.includes("what is") ||
+                lowerCaseMessage.includes("who is") ||
+                lowerCaseMessage.includes("when is") ||
+                lowerCaseMessage.includes("where is") ||
+                lowerCaseMessage.includes("how to")) {
+                return `That's a great question! While I don't have real-time data, I can tell you that ${userMessage}. Would you like me to try explaining it in simple terms?`;
+            }
+
+            // Default friendly response
+            return "Thanks for sharing that! Is there anything else you'd like to talk about or need help with?";
+        }
+    </script>
 </body>
 </html>
