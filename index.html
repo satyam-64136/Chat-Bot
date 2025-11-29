@@ -6,105 +6,198 @@
     <title>Accessible AI Chatbot</title>
     <style>
         :root {
-            --bg-color: #000;
-            --text-color: #fff;
-            --user-bg: #0066cc;
-            --bot-bg: #333;
-            --button-bg: #009933;
-            --button-hover: #00cc44;
-            --font-size: 22px;
+            --bg-color: #121212;
+            --chat-bg: #1e1e1e;
+            --user-bg: #4a8bfc;
+            --bot-bg: #2d2d2d;
+            --button-bg: #4caf50;
+            --button-hover: #66bb6a;
+            --text-color: #e0e0e0;
+            --placeholder-color: #9e9e9e;
+            --font-size: 18px;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            font-size: var(--font-size);
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-color);
         }
 
         .chat-window {
-            height: 500px;
+            flex: 1;
             overflow-y: auto;
-            border: 2px solid var(--text-color);
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             padding: 20px;
             margin-bottom: 20px;
-            background-color: var(--bot-bg);
+            background-color: var(--chat-bg);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .message {
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            border-radius: 8px;
-            max-width: 90%;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            max-width: 85%;
             word-wrap: break-word;
+            position: relative;
+            box-shadow: var(--box-shadow);
         }
 
         .user-message {
             background-color: var(--user-bg);
             margin-left: auto;
-            text-align: right;
+            color: white;
         }
 
         .bot-message {
             background-color: var(--bot-bg);
             margin-right: auto;
-            text-align: left;
-            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            border-left: 3px solid var(--user-bg);
         }
 
         .input-area {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: auto;
+            padding: 10px 0;
         }
 
         #user-input {
             flex: 1;
-            padding: 15px;
+            padding: 14px 16px;
             font-size: var(--font-size);
-            border: 2px solid var(--text-color);
-            border-radius: 8px;
-            background-color: var(--bg-color);
+            border: 1px solid #444;
+            border-radius: var(--border-radius);
+            background-color: var(--chat-bg);
             color: var(--text-color);
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        #user-input:focus {
+            border-color: var(--user-bg);
+        }
+
+        #user-input::placeholder {
+            color: var(--placeholder-color);
         }
 
         button {
-            padding: 15px 25px;
+            padding: 0 20px;
             font-size: var(--font-size);
             background-color: var(--button-bg);
-            color: var(--text-color);
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         button:hover {
             background-color: var(--button-hover);
+            transform: scale(1.05);
         }
 
         #microphone-btn {
-            background-color: #cc0000;
+            background-color: #f44336;
         }
 
         #microphone-btn:hover {
-            background-color: #ff3333;
+            background-color: #ff5252;
         }
 
         .instructions {
-            margin-top: 20px;
-            font-size: calc(var(--font-size) - 2px);
-            color: #aaa;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--placeholder-color);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .chat-window {
+                padding: 15px;
+            }
+
+            .message {
+                max-width: 90%;
+                font-size: 16px;
+            }
+
+            #user-input {
+                font-size: 16px;
+                padding: 12px 14px;
+            }
+
+            button {
+                padding: 0 15px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .input-area {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Scrollbar styling */
+        .chat-window::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-window::-webkit-scrollbar-thumb {
+            background-color: var(--user-bg);
+            border-radius: 10px;
+        }
+
+        .chat-window::-webkit-scrollbar-track {
+            background-color: var(--chat-bg);
         }
     </style>
 </head>
@@ -143,10 +236,12 @@
 
         // Conversation context
         let context = {
-            lastTopic: null,
             userName: null,
+            lastTopic: null,
+            isSad: false,
+            isAngry: false,
             isHealthTopic: false,
-            isEmotionalTopic: false,
+            conversationStage: 0, // Tracks follow-up depth
         };
 
         // Initialize
@@ -239,73 +334,62 @@
         function generateResponse(userMessage) {
             const lowerCaseMessage = userMessage.toLowerCase();
 
-            // Greeting
-            if (lowerCaseMessage.includes("hello") ||
-                lowerCaseMessage.includes("hi") ||
-                lowerCaseMessage.includes("hey")) {
+            // --- User shares their name ---
+            if (!context.userName && lowerCaseMessage.includes("i am") || lowerCaseMessage.includes("my name is")) {
+                context.userName = userMessage.replace(/i am |my name is /i, "").trim();
+                return `Hi ${context.userName}! It’s nice to meet you. How are you feeling today?`;
+            }
+
+            // --- Greetings ---
+            if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi") || lowerCaseMessage.includes("hey")) {
                 context.lastTopic = "greeting";
-                return "Hello! How are you doing today?";
+                return context.userName ?
+                    `Hi again, ${context.userName}! How can I help you today?` :
+                    "Hello! How can I help you today?";
             }
 
-            // How are you?
-            if (lowerCaseMessage.includes("how are you")) {
-                context.lastTopic = "how_are_you";
-                return "I'm just a program, but I'm here and ready to help you! How about you?";
+            // --- Sadness/Emotional Support ---
+            if (lowerCaseMessage.includes("sad") || lowerCaseMessage.includes("depressed") || lowerCaseMessage.includes("unhappy")) {
+                context.isSad = true;
+                context.conversationStage = 1;
+                return "I’m really sorry to hear that, " + (context.userName || "") + ". You don’t have to go through this alone. Would you like to talk about what’s making you feel this way?";
             }
 
-            // Name
-            if (lowerCaseMessage.includes("your name") ||
-                lowerCaseMessage.includes("who are you")) {
-                context.lastTopic = "name";
-                return "I'm your accessible AI assistant. You can call me Friend. What's your name?";
+            // --- Follow-up for sadness ---
+            if (context.isSad && context.conversationStage === 1) {
+                context.conversationStage = 2;
+                if (lowerCaseMessage.includes("parents") || lowerCaseMessage.includes("family")) {
+                    return "Family conflicts can be really tough. It sounds like you’re carrying a lot. Would it help to talk about what’s happening with them, or would you prefer some strategies to cope with the stress?";
+                } else {
+                    return "Thank you for sharing. Sometimes just talking about it can help. Would you like some suggestions for feeling better, or do you want to vent more?";
+                }
             }
 
-            // User shares their name
-            if (context.lastTopic === "name" && !context.userName) {
-                context.userName = userMessage;
-                return `Nice to meet you, ${context.userName}! What would you like to talk about?`;
+            // --- Follow-up for family conflicts ---
+            if (context.isSad && context.conversationStage === 2 && lowerCaseMessage.includes("yes")) {
+                context.conversationStage = 3;
+                return "Here are a few things that might help:\n\n1. **Take a breath**: When things get heated, stepping away for 10 minutes can help everyone cool down.\n2. **Write it down**: Sometimes writing a letter (even if you don’t send it) can help organize your thoughts.\n3. **Find support**: Talking to a trusted friend, teacher, or counselor can give you a new perspective.\n\nWould you like help finding resources or just someone to listen?";
             }
 
-            // Health-related questions
-            if (lowerCaseMessage.includes("cancer") ||
-                lowerCaseMessage.includes("sick") ||
-                lowerCaseMessage.includes("pain") ||
-                lowerCaseMessage.includes("diagnosis")) {
+            // --- Anger/Frustration ---
+            if (lowerCaseMessage.includes("angry") || lowerCaseMessage.includes("frustrated") || lowerCaseMessage.includes("mad")) {
+                context.isAngry = true;
+                return "It’s completely okay to feel angry. Do you want to talk about what’s making you feel this way? Sometimes just expressing it can make it feel less overwhelming.";
+            }
+
+            // --- Health concerns ---
+            if (lowerCaseMessage.includes("cancer") || lowerCaseMessage.includes("sick") || lowerCaseMessage.includes("pain")) {
                 context.isHealthTopic = true;
-                return "I'm really sorry to hear you're concerned about your health. I can't diagnose or provide medical advice, but I can suggest you speak to a healthcare professional. Would you like help finding resources?";
+                return "I’m really sorry you’re dealing with this. While I can’t give medical advice, I can suggest you talk to a doctor or find reliable resources. Would you like help with that?";
             }
 
-            // Emotional support
-            if (lowerCaseMessage.includes("sad") ||
-                lowerCaseMessage.includes("depressed") ||
-                lowerCaseMessage.includes("anxious") ||
-                lowerCaseMessage.includes("stressed") ||
-                lowerCaseMessage.includes("lonely")) {
-                context.isEmotionalTopic = true;
-                return "I'm here for you. It's okay to feel this way. Would you like to talk about it, or can I help you find someone to reach out to?";
+            // --- Default for unknown topics ---
+            if (context.lastTopic === "greeting" && !context.userName) {
+                return "What’s your name? I’d love to know who I’m talking to!";
             }
 
-            // Follow-up for emotional support
-            if (context.isEmotionalTopic) {
-                return "You're not alone. If you'd like, I can suggest some coping strategies or help you find a helpline. What feels right for you?";
-            }
-
-            // Follow-up for health
-            if (context.isHealthTopic) {
-                return "Please consult a doctor for any health concerns. If you'd like, I can help you draft a list of symptoms or questions to ask your healthcare provider.";
-            }
-
-            // General questions
-            if (lowerCaseMessage.includes("what is") ||
-                lowerCaseMessage.includes("who is") ||
-                lowerCaseMessage.includes("when is") ||
-                lowerCaseMessage.includes("where is") ||
-                lowerCaseMessage.includes("how to")) {
-                return `That's a great question! While I don't have real-time data, I can tell you that ${userMessage}. Would you like me to try explaining it in simple terms?`;
-            }
-
-            // Default friendly response
-            return "Thanks for sharing that! Is there anything else you'd like to talk about or need help with?";
+            // --- Fallback ---
+            return "I’m here to listen and help however I can. What’s on your mind, " + (context.userName || "") + "?";
         }
     </script>
 </body>
